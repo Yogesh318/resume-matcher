@@ -1,0 +1,6 @@
+{
+  "name": "ResuMatch AI",
+  "description": "AI-powered resume tailoring tool with ATS scoring, keyword optimization, and job scraping integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["AI Resume Tailoring", "ATS Scoring", "Keyword Highlighter", "Job Scraper Integration"]
+}
