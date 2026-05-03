@@ -185,7 +185,7 @@ export default function App() {
               </div>
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-zinc-900">Analyzing Match...</h2>
-                <p className="text-zinc-500">Gemini is deconstructing requirements and optimizing your content.</p>
+                <p className="text-zinc-500">The AI is deconstructing requirements and optimizing your content.</p>
               </div>
             </motion.div>
           )}

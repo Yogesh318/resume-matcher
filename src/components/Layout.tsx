@@ -102,7 +102,6 @@ export default function Layout({ children, onOpenExtension, onReset, onOpenHisto
               <span className="text-sm text-zinc-900 font-bold tracking-tight">ResuMatch AI</span>
             </div>
             <p className="text-xs text-zinc-500 font-medium">Elevating resumes with AI precision.</p>
-            <p className="text-[10px] text-zinc-400 font-mono mt-1 italic">Powered by Google Gemini 3.1 Pro</p>
           </div>
 
           <div className="flex flex-col items-center md:items-end gap-3">
