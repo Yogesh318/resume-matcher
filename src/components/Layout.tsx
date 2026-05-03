@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Chrome, RefreshCw, Layers, LogIn, LogOut, User as UserIcon, History } from "lucide-react";
+import { Chrome, RefreshCw, Layers, LogIn, LogOut, User as UserIcon, History, Linkedin, Mail } from "lucide-react";
 import { auth, loginWithGoogle, logout } from "../lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -94,15 +94,45 @@ export default function Layout({ children, onOpenExtension, onReset, onOpenHisto
       </nav>
       <main>{children}</main>
       
-      <footer className="py-12 border-t border-zinc-200 mt-20">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Layers className="w-5 h-5 text-zinc-400" />
-            <span className="text-sm text-zinc-500 font-medium tracking-tight">© 2026 ResuMatch AI. Optimize your career.</span>
+      <footer className="py-12 border-t border-zinc-200 mt-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col gap-2 items-center md:items-start">
+            <div className="flex items-center gap-2">
+              <Layers className="w-5 h-5 text-indigo-600" />
+              <span className="text-sm text-zinc-900 font-bold tracking-tight">ResuMatch AI</span>
+            </div>
+            <p className="text-xs text-zinc-500 font-medium">Elevating resumes with AI precision.</p>
+            <p className="text-[10px] text-zinc-400 font-mono mt-1 italic">Powered by Google Gemini 3.1 Pro</p>
           </div>
-          <div className="text-xs text-zinc-400 font-mono italic">
-            Powered by Google Gemini 3.1 Pro
+
+          <div className="flex flex-col items-center md:items-end gap-3">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Get in Touch</h4>
+            <div className="flex items-center gap-6">
+              <a 
+                href="https://www.linkedin.com/in/yogeswarchegireddy/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                  <Linkedin className="w-4 h-4" />
+                </div>
+                LinkedIn
+              </a>
+              <a 
+                href="mailto:chyogeshreddy@gmail.com" 
+                className="flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+                  <Mail className="w-4 h-4" />
+                </div>
+                Email
+              </a>
+            </div>
           </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-zinc-100 flex justify-center">
+          <span className="text-[10px] text-zinc-400 font-medium tracking-tight uppercase">© 2026 ResuMatch AI • Developed by Yogeswar Chegireddy</span>
         </div>
       </footer>
     </div>
