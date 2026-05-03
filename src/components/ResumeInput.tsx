@@ -1,7 +1,8 @@
 import React, { useRef, useState } from "react";
-import { FileText, Clipboard, Upload, Loader2, FileUp, Check } from "lucide-react";
+import { FileText, Clipboard, Upload, Loader2, FileUp, Check, Save } from "lucide-react";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
+import { auth, saveResume } from "../lib/firebase";
 
 // Set worker path for PDF.js
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
@@ -19,6 +20,12 @@ export default function ResumeInput({ value, onChange }: ResumeInputProps) {
 
   const handleFile = async (file: File) => {
     if (!file) return;
+
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    if (file.size > MAX_SIZE) {
+      alert(`File size exceeds the 10MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`);
+      return;
+    }
     
     setIsParsing(true);
     setFileName(file.name);
@@ -42,6 +49,24 @@ export default function ResumeInput({ value, onChange }: ResumeInputProps) {
       alert("Failed to read file. Please try copy-pasting your text.");
     } finally {
       setIsParsing(false);
+    }
+  };
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const handleSave = async () => {
+    if (!auth.currentUser || !value) return;
+    setIsSaving(true);
+    try {
+      await saveResume(auth.currentUser.uid, fileName || "New Resume", value);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save resume profile.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -96,6 +121,22 @@ export default function ResumeInput({ value, onChange }: ResumeInputProps) {
             <FileUp className="w-3.5 h-3.5" />
             Upload File
           </button>
+          {auth.currentUser && value && (
+            <button 
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`text-xs font-bold flex items-center gap-1 transition-all ${saveSuccess ? 'text-emerald-600' : 'text-zinc-500 hover:text-zinc-900'}`}
+            >
+              {isSaving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : saveSuccess ? (
+                <Check className="w-3.5 h-3.5" />
+              ) : (
+                <Save className="w-3.5 h-3.5" />
+              )}
+              {saveSuccess ? 'Saved' : 'Save to Profile'}
+            </button>
+          )}
         </div>
       </div>
       

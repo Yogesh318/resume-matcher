@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Public and private user data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Resume": {
+      "title": "Saved Resume",
+      "description": "A resume uploaded or pasted by the user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "text": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "text", "createdAt"]
+    },
+    "Scan": {
+      "title": "Resume Scan",
+      "description": "Historical resume scan results",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "jobTitle": { "type": "string" },
+        "company": { "type": "string" },
+        "jobDescription": { "type": "string" },
+        "resumeId": { "type": "string" },
+        "atsScore": { "type": "number" },
+        "analysis": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "jobTitle", "atsScore", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/users/{userId}/resumes/{resumeId}": {
+      "schema": "Resume",
+      "description": "Saved resumes for a user"
+    },
+    "/users/{userId}/scans/{scanId}": {
+      "schema": "Scan",
+      "description": "Saved scan results for a user"
+    }
+  }
+}

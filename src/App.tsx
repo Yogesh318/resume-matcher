@@ -14,8 +14,11 @@ import {
   Search,
   Plus
 } from "lucide-react";
+import { auth, saveScan, getResumes } from "./lib/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { analyzeResume } from "./lib/gemini";
 import { AnalysisResult, JobData } from "./types";
+import { History, Save } from "lucide-react";
 
 // Components
 import Layout from "./components/Layout";
@@ -23,6 +26,7 @@ import ResumeInput from "./components/ResumeInput";
 import JobInput from "./components/JobInput";
 import Dashboard from "./components/Dashboard";
 import ExtensionInfo from "./components/ExtensionInfo";
+import HistoryDrawer from "./components/HistoryDrawer";
 
 export default function App() {
   const [step, setStep] = useState<"input" | "analyzing" | "dashboard">("input");
@@ -32,7 +36,17 @@ export default function App() {
   const [company, setCompany] = useState("");
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isExtensionOpen, setIsExtensionOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [scrapedJobs, setScrapedJobs] = useState<JobData[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Fetch scraped jobs from backend
   const fetchScrapedJobs = async () => {
@@ -59,6 +73,18 @@ export default function App() {
       const result = await analyzeResume(resumeText, jobDescription);
       setAnalysis(result);
       setStep("dashboard");
+
+      // Auto-save scan if logged in
+      if (auth.currentUser) {
+        saveScan(auth.currentUser.uid, {
+          jobTitle,
+          company,
+          jobDescription,
+          resumeText,
+          atsScore: result.atsScore,
+          analysis: result
+        });
+      }
     } catch (error) {
       console.error(error);
       setStep("input");
@@ -72,10 +98,28 @@ export default function App() {
     setCompany(job.company);
   };
 
+  const handleSelectHistory = (historyItem: any) => {
+    if (historyItem._isResumeOnly) {
+      setResumeText(historyItem.resumeText);
+      return;
+    }
+    setResumeText(historyItem.resumeText);
+    setJobDescription(historyItem.jobDescription);
+    setJobTitle(historyItem.jobTitle);
+    setCompany(historyItem.company);
+    setAnalysis(historyItem.analysis);
+    setStep("dashboard");
+    setIsHistoryOpen(false);
+  };
+
   return (
     <Layout 
       onOpenExtension={() => setIsExtensionOpen(true)}
-      onReset={() => setStep("input")}
+      onOpenHistory={() => setIsHistoryOpen(true)}
+      onReset={() => {
+        setStep("input");
+        setAnalysis(null);
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 py-8">
         <AnimatePresence mode="wait">
@@ -167,6 +211,12 @@ export default function App() {
       <ExtensionInfo 
         isOpen={isExtensionOpen} 
         onClose={() => setIsExtensionOpen(false)} 
+      />
+
+      <HistoryDrawer 
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        onSelectScan={handleSelectHistory}
       />
     </Layout>
   );

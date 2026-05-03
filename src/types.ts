@@ -14,6 +14,7 @@ export interface Keyword {
   word: string;
   importance: "high" | "medium" | "low";
   found: boolean;
+  suggestedSection?: string;
 }
 
 export interface AnalysisResult {
@@ -27,4 +28,6 @@ export interface AnalysisResult {
     explanation: string;
   }[];
   explanation: string;
+  actionPlan?: string[];
+  scoreBreakdown?: string;
 }

@@ -95,36 +95,53 @@ export default function Dashboard({ analysis, resumeText, jobTitle, company }: D
         </div>
       </header>
 
-      {/* Low Score Warning/Breakdown */}
-      {analysis.atsScore < 70 && (
+      {/* Detailed Score Breakdown & Action Plan */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-rose-50 border border-rose-200 rounded-3xl p-6 flex flex-col md:flex-row items-center gap-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className={`rounded-3xl p-8 border ${scoreBg(analysis.atsScore)} flex flex-col gap-4`}
         >
-          <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center shrink-0">
-            <AlertCircle className="w-6 h-6 text-rose-600" />
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-xl bg-white/50 border border-current opacity-70`}>
+              <Target className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-lg tracking-tight">Match Breakdown</h3>
           </div>
-          <div className="flex-1 space-y-2">
-            <h3 className="font-bold text-rose-900">Optimization Required</h3>
-            <p className="text-sm text-rose-700 leading-relaxed">
-              Your score is below 70% primarily due to missing high-impact keywords. 
-              To improve your visibility, focus on integrating 
-              <span className="font-bold mx-1">
-                {analysis.missingKeywords
-                  .filter(k => k.importance === 'high')
-                  .slice(0, 3)
-                  .map(k => k.word)
-                  .join(", ")}
-              </span>
-              into your professional summary and experience sections.
-            </p>
-          </div>
-          <div className="text-xs font-mono text-rose-400 bg-white/50 px-4 py-2 rounded-xl border border-rose-100">
-            {analysis.missingKeywords.filter(k => k.importance === 'high').length} High-Impact Gaps
+          <p className="text-sm font-medium leading-relaxed opacity-80">
+            {analysis.scoreBreakdown}
+          </p>
+          <div className="mt-auto pt-6 flex items-center gap-2">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Confidence Level:</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/40 border border-white/20">High Reliability</span>
           </div>
         </motion.div>
-      )}
+
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-zinc-900 rounded-3xl p-8 text-white shadow-xl shadow-indigo-100"
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 rounded-xl bg-white/10 border border-white/10">
+              <Sparkles className="w-5 h-5 text-indigo-400" />
+            </div>
+            <h3 className="font-bold text-lg tracking-tight">Critical Action Plan</h3>
+          </div>
+          <ul className="space-y-4">
+            {analysis.actionPlan?.map((step, i) => (
+              <li key={i} className="flex gap-4 items-start group">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-600 text-[10px] font-black flex items-center justify-center ring-4 ring-indigo-500/20">
+                  {i + 1}
+                </span>
+                <p className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors pt-0.5">
+                  {step}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      </div>
 
       {activeTab === "optimization" ? (
         <div className="space-y-8">
@@ -136,27 +153,35 @@ export default function Dashboard({ analysis, resumeText, jobTitle, company }: D
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Keyword Analysis */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm overflow-hidden relative">
-              <div className="flex items-center gap-2 mb-6">
-                <Target className="w-4 h-4 text-rose-500" />
-                <h3 className="font-bold text-zinc-900 text-xs uppercase tracking-widest">Missing Keywords</h3>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {analysis.missingKeywords.map((kw, i) => (
-                  <motion.span 
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.05 }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 ${kw.importance === 'high' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-zinc-50 text-zinc-600 border border-zinc-100'}`}
-                  >
-                    <AlertCircle className="w-3 h-3 opacity-50" />
-                    {kw.word}
-                  </motion.span>
-                ))}
-              </div>
+            {/* Keyword Analysis */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white border border-zinc-200 rounded-3xl p-6 shadow-sm overflow-hidden relative">
+                <div className="flex items-center gap-2 mb-6">
+                  <Target className="w-4 h-4 text-rose-500" />
+                  <h3 className="font-bold text-zinc-900 text-xs uppercase tracking-widest">Missing Keywords</h3>
+                </div>
+                
+                {/* Grouped Missing Keywords */}
+                <div className="space-y-6">
+                  {Array.from(new Set(analysis.missingKeywords.map(k => k.suggestedSection || "General"))).map((section, idx) => (
+                    <div key={idx} className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-zinc-400 pl-1">{section}</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {analysis.missingKeywords.filter(k => (k.suggestedSection || "General") === section).map((kw, i) => (
+                          <motion.span 
+                            key={i}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: (idx + i) * 0.05 }}
+                            className={`px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 ${kw.importance === 'high' ? 'bg-rose-50 text-rose-700 border border-rose-100' : 'bg-zinc-50 text-zinc-600 border border-zinc-100'}`}
+                          >
+                            {kw.word}
+                          </motion.span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               <div className="mt-8 pt-6 border-t border-zinc-100">
                 <div className="flex items-center gap-2 mb-4">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500" />
